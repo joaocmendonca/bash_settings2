@@ -59,6 +59,3 @@ cat << 'EOF' >> cat ~/.vimrc
 set encoding=utf-8
 set fileencoding=utf-8
 EOF
-
-# disable ipv6
-sudo echo 'net.ipv6.conf.all.disable_ipv6 = 1' > /etc/sysctl.d/01-disable-ipv6.conf
