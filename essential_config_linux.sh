@@ -55,7 +55,7 @@ setw -g mode-mouse on
 EOF
 
 # vim UTF-8
-cat << 'EOF' >> cat ~/.vimrc
+cat << 'EOF' >> ~/.vimrc
 set encoding=utf-8
 set fileencoding=utf-8
 EOF
