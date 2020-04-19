@@ -9,6 +9,7 @@ HISTCONTROL=ignoreboth
 shopt -s histappend
 HISTSIZE=10000
 HISTFILESIZE=20000
+HISTTIMEFORMAT="%Y%m%d_%H%M%S%z
 
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
