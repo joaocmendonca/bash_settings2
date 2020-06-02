@@ -50,6 +50,7 @@ alias ts_to_date_linux='echo \`date "+%Y%m%d-%H%M%S%z" -ud @1415161718\`, where 
 alias wanip='dig +short myip.opendns.com @resolver1.opendns.com'
 alias wanip2='curl http://ipecho.net/plain; echo'
 alias wanip3='curl http://icanhazip.com; echo'
+alias giveme8='head -c 1024 /dev/urandom | LC_ALL=C tr -cd "[:alpha:]" | fold -w 8'
 
 EOF
 
