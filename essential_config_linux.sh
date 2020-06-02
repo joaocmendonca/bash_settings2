@@ -9,7 +9,7 @@ HISTCONTROL=ignoreboth
 shopt -s histappend
 HISTSIZE=10000
 HISTFILESIZE=20000
-HISTTIMEFORMAT="%Y%m%d_%H%M%S%z
+HISTTIMEFORMAT="%Y%m%d_%H%M%S%z % "
 
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
@@ -19,8 +19,7 @@ EOF
 
 cat << 'EOF' >> ~/.bash_aliases
 
-alias 7zinfected='7z a sample-$(date '+%Y%m%d-%H%M%S%z')-pwd-infected.zip -tzip -mem=AES256 -pinfected'
-
+alias 7zinfected='7z a sample-`myts`-pwd-infected.zip -tzip -mem=AES256 -pinfected'
 alias bashRemoveSpacesFromFilenames='for name in *\ *; do mv -v "$name" "${name// /}"; done'
 alias cO='curl -O'
 alias download='cO'
@@ -43,21 +42,22 @@ alias mktemp32='echo `cat /dev/urandom | base64 | tr -dc a-zA-Z0-9 | fold -w 32 
 alias mp='ps ajf'
 alias mydate='date +%Y%m%d'
 alias myts='date +%Y%m%d-%H%M%S%z'
-# alias myts="date '+%Y%m%d-%H%M%S%z'"
 
 alias sortipv4='sort -t . -k 1,1n -k 2,2n -k 3,3n -k 4,4n'
 alias squidtime='awk '\''{printf "%s", strftime("%F %T UTC", $1, 1);   $1=""; print $0}'\'''
 alias ts_to_date_linux='echo \`date "+%Y%m%d-%H%M%S%z" -ud @1415161718\`, where 1415161718 is your timestamp to convert'
 
-alias giveme8='head -c 1024 /dev/urandom | LC_ALL=C tr -cd "[:alpha:]" | fold -w 8'
+alias wanip='dig +short myip.opendns.com @resolver1.opendns.com'
+alias wanip2='curl http://ipecho.net/plain; echo'
+alias wanip3='curl http://icanhazip.com; echo'
 
 EOF
 
 
 # tmux
 cat << 'EOF' >> ~/.tmux.conf
-# setw -g mouse on
-setw -g mode-mouse on
+setw -g mouse on
+# setw -g mode-mouse on
 EOF
 
 # vim UTF-8
