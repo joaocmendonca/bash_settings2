@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # essential_config_linux.sh
 # my settings
 
@@ -66,3 +68,27 @@ cat << 'EOF' >> ~/.vimrc
 set encoding=utf-8
 set fileencoding=utf-8
 EOF
+
+# basic packages
+mkdir -p "$HOME/_scripts"
+touch "$HOME/_scripts/add-packages.sh"
+chmod +x "$HOME/_scripts/add-packages.sh"
+cat << 'EOF' >> "$HOME/_scripts/add-packages.sh"
+#!/usr/bin/env bash
+
+### Script must be run as root
+# if [ $UID -ne 0 ]; then
+if [ "$(id -u)" -ne 0 ]; then
+   echo "You need to be root to run this script!"
+   exit 1
+   else
+     echo "[*] You are root, continuing..."
+fi
+
+add_packages() {
+  # add tcpdump htop vim curl wget python3
+  echo "[*] Adding packages..."
+  apt-get -qy update && apt-get -qy install python3 python-apt tcpdump htop vim curl wget lsof p7zip-full && echo "[*] apt-get install concluded successfully..." || echo "[ERROR] apt-get install did not execute correctly!"
+}
+
+'EOF'
