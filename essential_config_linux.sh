@@ -79,3 +79,7 @@ add_packages() {
   apt-get -qy update && apt-get -qy install python3 python-apt tcpdump htop vim curl wget lsof p7zip-full && echo "[*] apt-get install concluded successfully..." || echo "[ERROR] apt-get install did not execute correctly!"
 }
 EOF
+
+# Show IP addresses on console via `/etc/issue`
+{ echo 'IP addresses: \4 \6'; cat /etc/issue; } > /etc/issue.1; \
+cp /etc/issue.1 /etc/issue
