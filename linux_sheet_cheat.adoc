@@ -72,15 +72,15 @@ echo $EMAIL | /usr/share/jitsi-meet/scripts/install-letsencrypt-cert.sh
 jitsi-meet-prosody      jicofo/jicofosecret     password        sEXvYtwB
 jitsi-meet-prosody      jicofo/jicofo-authpassword      password        D8BCSkkt
 jitsi-meet-prosody      jitsi-videobridge/jvbsecret     password        97ee8EnD
-jitsi-meet-prosody      jitsi-videobridge/jvb-hostname  string  oianois.ddnss.de
-jitsi-meet-turnserver   jitsi-videobridge/jvb-hostname  string  oianois.ddnss.de
-jitsi-meet-web-config   jitsi-videobridge/jvb-hostname  string  oianois.ddnss.de
+jitsi-meet-prosody      jitsi-videobridge/jvb-hostname  string  hallojitsi.ddnss.de
+jitsi-meet-turnserver   jitsi-videobridge/jvb-hostname  string  hallojitsi.ddnss.de
+jitsi-meet-web-config   jitsi-videobridge/jvb-hostname  string  hallojitsi.ddnss.de
 jitsi-meet-prosody      jitsi-meet-prosody/turn-secret  string  tTkGQrbD
 jitsi-meet-prosody      jicofo/jicofo-authuser  string  focus
-jitsi-meet-turnserver   jitsi-meet-turnserver/jvb-hostname      string  oianois.ddnss.de
+jitsi-meet-turnserver   jitsi-meet-turnserver/jvb-hostname      string  hallojitsi.ddnss.de
 jitsi-meet-web-config   jitsi-meet/cert-path-key        string
-jitsi-meet-prosody      jitsi-meet-prosody/jvb-hostname string  oianois.ddnss.de
-jitsi-meet-web-config   jitsi-meet/jvb-hostname string  oianois.ddnss.de
+jitsi-meet-prosody      jitsi-meet-prosody/jvb-hostname string  hallojitsi.ddnss.de
+jitsi-meet-web-config   jitsi-meet/jvb-hostname string  hallojitsi.ddnss.de
 jitsi-meet-web-config   jitsi-meet/cert-path-crt        string
 jitsi-meet-web-config   jitsi-meet/cert-choice  select  Generate a new self-signed certificate (You will later get a chance to obtain a Let's encrypt certificate)
 ----
