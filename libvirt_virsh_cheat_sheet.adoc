@@ -1,0 +1,117 @@
+= Libvirt virsh cheat sheet
+
+
+:experimental: This is an experimental project, please use with care. Might not be suitable for production environments.
+
+:test-url: afp://123.33.3.3/asdh
+
+libvirt daemon status
+
+ systemctl status libvirtd
+
+== Domains
+
+domains are virtual machines managed by libvirt
+
+list domains
+
+----
+# virsh list --all
+ Id   Name           State
+-------------------------------
+ -    buster-amd64   shut off
+----
+
+start domain (= start vm)
+
+ virsh start buster-amd64
+
+shutdown guest
+
+ virsh shutdown buster-amd64
+
+destroy (-> *force shutdown*) domain
+
+ virsh destroy buster-amd64
+
+
+
+
+=== Snapshot management
+
+create snapshot of domain
+
+ virsh snapshot-create-as --domain $VM_NAME \
+ --name "snapshot after install" \
+ --description "creation date: $(date +%Y%m%d-%H%M%S%z)"
+
+list snapshot of domain
+
+ virsh snapshot-list --domain $VM_NAME
+
+delete snapshot
+
+ virsh snapshot-delete --domain $VM_NAME --snapshotname 3sep2016
+
+== Disks/Volumes
+
+Disk images will be stored by default under `/var/lib/libvirt/images/`
+
+
+== Networks
+
+show all virtual networks
+
+ virsh net-list --all
+
+set default virt net to autostart
+
+ virsh net-autostart default
+
+
+
+== General/Misc
+
+Infos about host system
+
+ virsh nodeinfo
+
+To exit virsh/virt-install console
+
+
+ Deutsche Tastatur
+kbd:[Ctrl+Alt+6]
+
+https://superuser.com/questions/637669/how-to-exit-a-virsh-console-connection
+
+== Stop, Delete and Remove Disk from a Guest VM
+
+ virsh destroy buster-amd64 ; virsh undefine buster-amd64 ; rm  -v /var/lib/libvirt/images/buster-amd64*
+
+== unsorted
+
+27 virsh list --all
+18 virsh destroy buster-amd64 ; virsh undefine buster-amd64 ; rm  -v /var/lib/libvirt/images/buster-amd64*
+11 virsh net-list --all
+ 7 virsh snapshot-list smc1
+ 6 virsh undefine buster-amd64
+ 6 virsh start smc1
+ 6 virsh console buster-amd64
+ 5 virsh destroy buster-amd64 && virsh undefine buster-amd64 && rm /var/lib/libvirt/images/buster-amd64*
+ 5 virsh destroy buster-amd64
+ 4 virsh snapshot-revert smc1 --current
+ 3 virsh start buster-amd64
+ 3 virsh snapshot-delete smc1 --current
+ 3 virsh snapshot-create smc1
+ 3 virsh --help|grep snap
+ 3 virsh help
+ 3 virsh --help
+ 3 virsh edit buster-amd64
+ 2 virsh snapshot-info smc1
+ 2 virsh snapshot
+ 2 virsh nodeinfo
+ 2 virsh list
+ 2 virsh --help|less
+ 2 virsh domdisplay
+
+`The Test URL is: {test-url}`

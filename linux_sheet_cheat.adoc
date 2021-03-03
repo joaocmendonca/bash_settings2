@@ -1,0 +1,264 @@
+= Linux Cheat Sheet
+
+
+== Checking System for Errors
+
+To check a system for error, eg. after update::
+
+  dmesg --level emerg,alert,crit,err
+  journalctl -xe -p err
+
+  systemctl status --all
+  systemctl status --all --no-pager
+
+== Performance Monitoring
+
+
+
+== Essential usability config
+
+ curl -o - 'https://raw.githubusercontent.com/joaocmendonca/bash_settings2/master/essential_config_linux.sh'|bash && source ~/.bashrc
+
+
+== apt updates, upgrades and autoremove
+
+ sudo sh -c 'apt-get -qy update && apt-get -qy upgrade && apt-get -qy autoremove'
+
+
+== debconf-set-selections for non-interactive package installation
+
+`debconf-set-selections` to set
+
+
+example on how to use debconf-set-selections to set install parameters
+
+https://github.com/microsoft/AzureTipsAndTricks/blob/882b4fcf35bc4b1ab1407b0ac748a55ff09c74c9/scripts/Jitsi-Installation[Azuretips jitsi install]
+
+https://github.com/search?l=Dockerfile&o=desc&q=jitsi+debconf-set-selections&s=indexed&type=Code
+
+----
+# config variables
+# BE SURE TO ENTER YOUR CUSTOM VALUES HERE
+HOSTNAME="custom-domain-name-here"
+EMAIL="your-email-address-here"
+
+# set hostname
+hostnamectl set-hostname $HOSTNAME
+echo -e "127.0.0.1 localhost $HOSTNAME" >> /etc/hosts
+
+# add Jitsi to sources
+wget -qO - https://download.jitsi.org/jitsi-key.gpg.key | sudo apt-key add -
+sh -c "echo 'deb https://download.jitsi.org stable/' > /etc/apt/sources.list.d/jitsi-stable.list"
+apt update
+echo -e "DefaultLimitNOFILE=65000\nDefaultLimitNPROC=65000\nDefaultTasksMax=65000" >> /etc/systemd/system.conf
+systemctl daemon-reload
+
+# Configure Jits install
+debconf-set-selections <<< $(echo 'jitsi-videobridge jitsi-videobridge/jvb-hostname string '$HOSTNAME)
+debconf-set-selections <<< 'jitsi-meet-web-config   jitsi-meet/cert-choice  select  "Generate a new self-signed certificate"';
+
+# Install Jitsi
+apt install -y jitsi-meet
+
+# letsencrypt
+echo $EMAIL | /usr/share/jitsi-meet/scripts/install-letsencrypt-cert.sh
+----
+
+
+`debconf-get-selections` to show all the parameters
+
+----
+# debconf-get-selections|grep jitsi-meet
+jitsi-meet-prosody      jicofo/jicofosecret     password        sEXvYtwB
+jitsi-meet-prosody      jicofo/jicofo-authpassword      password        D8BCSkkt
+jitsi-meet-prosody      jitsi-videobridge/jvbsecret     password        97ee8EnD
+jitsi-meet-prosody      jitsi-videobridge/jvb-hostname  string  oianois.ddnss.de
+jitsi-meet-turnserver   jitsi-videobridge/jvb-hostname  string  oianois.ddnss.de
+jitsi-meet-web-config   jitsi-videobridge/jvb-hostname  string  oianois.ddnss.de
+jitsi-meet-prosody      jitsi-meet-prosody/turn-secret  string  tTkGQrbD
+jitsi-meet-prosody      jicofo/jicofo-authuser  string  focus
+jitsi-meet-turnserver   jitsi-meet-turnserver/jvb-hostname      string  oianois.ddnss.de
+jitsi-meet-web-config   jitsi-meet/cert-path-key        string
+jitsi-meet-prosody      jitsi-meet-prosody/jvb-hostname string  oianois.ddnss.de
+jitsi-meet-web-config   jitsi-meet/jvb-hostname string  oianois.ddnss.de
+jitsi-meet-web-config   jitsi-meet/cert-path-crt        string
+jitsi-meet-web-config   jitsi-meet/cert-choice  select  Generate a new self-signed certificate (You will later get a chance to obtain a Let's encrypt certificate)
+----
+
+== systemd shix
+
+  systemctl status servicename.service
+  for c in restart status; do systemctl "$c" servicename.service; done
+  # unmask, unlink, reload, daemon-reload
+
+== Network configuration
+
+----
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+auto eno1
+iface eno1 inet static
+        address 10.18.17.11
+        netmask 255.255.255.0
+        network 10.18.17.0
+        broadcast 10.18.17.0.255
+        gateway 10.18.17.1
+        # dns-* options are implemented by the resolvconf package, if installed
+        dns-nameservers 8.8.4.4 8.8.8.8
+        dns-search lab.local
+----
+
+----
+# script, that takes device name (eg eth0 or eno1), ip address/netmask
+# and optionally gateway, dns server
+
+apt-get -qy install resolvconf
+
+IF='eno1'
+IPADDR='10.1.0.211'
+NMASK='255.255.255.0'
+IPADDRMASK='10.1.0.211/24'
+NETW='10.1.0.0'
+BCAST='10.1.0.255'
+DGW='10.1.0.1'
+
+# cat << EOF >> /etc/network/interfaces
+cat << EOF >> $(mktemp)
+  address $IPADDR
+  netmask $NMASK
+  network $NETW
+  broadcast $BCAST
+  gateway $DGW
+  # dns-* options are implemented by the resolvconf package, if installed
+  dns-nameservers $DNS
+  dns-search homenet.local
+  dns-search 3std
+----
+
+----
+IF='eno1'
+IPADDR='10.1.0.211'
+NMASK='255.255.255.0'
+IPADDRMASK='10.1.0.211/24'
+NETW='10.1.0.0'
+BCAST='10.1.0.255'
+DGW='10.1.0.1'
+DNS='10.1.0.1 9.9.9.9'
+# build config block
+echo -e "\n\nsource /etc/network/interfaces.d/*\n\n# loopback interface\nauto lo\niface lo inet loopback\n\n\n# primary network interface (static)\nauto $IF\niface $IF inet static\n\taddress $IPADDRMASK\n\tgateway $DGW\n\t# dns-* options are implemented by the resolvconf package, if installed\n\tdns-nameservers $DNS\n\tdns-search 3std\n"
+----
+
+----
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+----
+
+
+
+=== Temporary IP address assignment
+
+  ip addr add 10.102.66.200/24 dev enp0s25
+  ip addr del 192.168.1.1/24 dev em1
+
+=== Set link up/down
+
+  ip link set dev enp0s25 up
+  ip link set dev enp0s25 down
+
+=== routes / routing table
+
+  ip route add default via 192.168.1.1 dev em1
+  ip route add 192.168.1.0/24 via 192.168.1.1
+  ip route add 192.168.1.0/24 dev em1
+  ip route delete 192.168.1.0/24 via 192.168.1.1
+  ip route delete 192.168.1.0/24 via 192.168.1.1
+  ip route get 192.168.1.5
+
+See also:
+Redhat ip COMMAND CHEAT SHEET, `rh_ip_command_cheatsheet_1214_jcs_print.pdf`
+
+
+== Listening and connected services
+
+  ss -s       # display statistics
+  ss -s4      # statistics for ipv4 only
+  ss -s4l     # statistics plus ipv4 listening (tcp) or unconnected (udp)
+  ss -s4lp    # statistics plus ipv4 tcp listening services and process info
+  ss -s4lpt   # statistics plus ipv4 tcp listening services and process info
+  ss -s4lpu   # statistics plus ipv4 unconnected (udp) services and process info
+  ss -o state established '( dport = :ssh or sport = :ssh )'
+       Display all established ssh connections.
+  ss -pano
+
+
+
+
+== /etc/issue to display IP addresses on console
+
+-----
+# cat /etc/issue
+IP addresses: \4 \6
+Debian GNU/Linux 10 \n \l
+-----
+
+== Add ssh pubkey to authkeys and webproxy überall
+
+----
+mkdir /target/root/.ssh; chmod 700 /target/root/.ssh; echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJiokaXOI6/TgPxPeD+UOWzxexWd2WdHw4IDwbsImzzf SHS RSO - Project FO - SSH Key 01 - (2020.03)" > /target/root/.ssh/authorized_keys; chmod 600 /target/root/.ssh/authorized_keys; { echo 'IP addresses: \4 \6'; cat /target/etc/issue; } > /target/etc/issue.1; cp /target/etc/issue.1 /target/etc/issue; echo "export http_proxy=http://10.1.0.1:3128" > /etc/profile.d/proxy.sh; echo 'Acquire::http::Proxy "http://192.168.0.1:3128";' > /etc/apt/apt.conf.d/99HttpProxy; echo $?
+echo 'Acquire::http::Proxy "http://10.1.0.1:3128";' > /etc/apt/apt.conf.d/99HttpProxy; echo $?
+----
+
+Or only proxy
+
+----
+WEB_PROXY='http://10.101.0.1:3128'
+echo "export http_proxy=$WEB_PROXY" > /etc/profile.d/proxy.sh
+echo Acquire::http::Proxy \"$WEB_PROXY\"\; > /etc/apt/apt.conf.d/99HttpProxy; echo $?
+----
+
+
+
+== Test dhcp server
+
+  sudo nmap --script broadcast-dhcp-discover
+
+
+== Default runlevel targets
+
+* boot to multi-user but not graphical environment (ssh/console only)
+
+ systemctl set-default multi-user.target
+
+* boot to graphical environment
+
+ systemctl set-default graphical.target
+
+* see all available targets
+
+ systemctl list-units --type=target
+
+
+== SSH fingerprints
+
+=== Locally
+
+  # SHA-256 fingerprint
+  for ID in /etc/ssh/ssh_host_*; do ssh-keygen -l -f "$ID"; done
+  # MD5 fingerprint
+  for ID in /etc/ssh/ssh_host_*; do ssh-keygen -l -E md5 -f "$ID"; donefor ID in /etc/ssh/ssh_host_*; done
+
+== Show IP addresses on console via `/etc/issue`
+
+----
+{ echo 'IP addresses: \4 \6'; cat /etc/issue; } > /etc/issue.1; \
+cp /etc/issue.1 /etc/issue
+----
